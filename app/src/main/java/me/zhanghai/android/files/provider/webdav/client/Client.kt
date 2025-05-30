@@ -20,10 +20,10 @@ import at.bitfire.dav4jvm.exception.NotFoundException
 import at.bitfire.dav4jvm.exception.PreconditionFailedException
 import at.bitfire.dav4jvm.exception.ServiceUnavailableException
 import at.bitfire.dav4jvm.exception.UnauthorizedException
-import at.bitfire.dav4jvm.property.webdav.CreationDate
-import at.bitfire.dav4jvm.property.webdav.GetContentLength
-import at.bitfire.dav4jvm.property.webdav.GetLastModified
-import at.bitfire.dav4jvm.property.webdav.ResourceType
+import at.bitfire.dav4jvm.property.CreationDate
+import at.bitfire.dav4jvm.property.GetContentLength
+import at.bitfire.dav4jvm.property.GetLastModified
+import at.bitfire.dav4jvm.property.ResourceType
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
@@ -41,6 +41,7 @@ import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Route
+import java.util.Date
 
 // See also https://github.com/miquels/webdavfs/blob/master/fuse.go
 object Client {
@@ -128,7 +129,7 @@ object Client {
     @Throws(DavException::class)
     fun get(path: Path): InputStream =
         try {
-            DavResource(getClient(path.authority), path.url).getCompat("*/*", null)
+            DavResource(getClient(path.authority), path.url).getCompat("*/*")
         } catch (e: IOException) {
             throw e.toDavException()
         }
@@ -215,15 +216,19 @@ object Client {
         if (true) {
             return
         }
+        // 将 Instant 转换为 Date
+        val lastModifiedDate = Date.from(lastModifiedTime)
+
         // The following doesn't work on most servers. See also
         // https://github.com/sabre-io/dav/issues/1277
         try {
             DavResource(getClient(path.authority), path.url).proppatch(
-                mapOf(GetLastModified.NAME to HttpUtils.formatDate(lastModifiedTime)), emptyList()
+                mapOf(GetLastModified.NAME to HttpUtils.formatDate(lastModifiedDate)), emptyList()
             ) { response, _ -> response.checkSuccess() }
         } catch (e: IOException) {
             throw e.toDavException()
         }
+        // 注意：这里假设 Java8Path 是 Path 的一个子类或者进行了适当的类型转换处理
         LocalWatchService.onEntryModified(path as Java8Path)
     }
 

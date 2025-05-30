@@ -18,6 +18,7 @@ buildscript {
     dependencies {
         classpath 'com.google.gms:google-services:4.4.2'
         classpath 'com.google.firebase:firebase-crashlytics-gradle:3.0.2'
+
     }
 }
 apply plugin: 'com.google.gms.google-services'
@@ -104,17 +105,12 @@ android {
     }
 }
 
-repositories {
-    maven {
-        url 'https://jitpack.io'
-    }
-}
+
 dependencies {
-    implementation('com.github.bitfireAT:dav4jvm:c1bc143') {
-        exclude group: 'org.ogce', module: 'xpp3'
-    }
+
     implementation 'com.github.chrisbanes:PhotoView:2.3.0'
     implementation 'com.github.topjohnwu.libsu:service:5.2.2'
+    implementation 'com.github.bitfireAT:dav4jvm:2.2.1'
 }
 
 dependencies {

@@ -31,8 +31,14 @@ import java.nio.ByteBuffer
 import java.util.concurrent.CountDownLatch
 
 @Throws(DavException::class, IOException::class)
-fun DavResource.getCompat(accept: String, headers: Headers?): InputStream =
-    get(accept, headers).also { checkStatus(it) }.body!!.byteStream()
+fun DavResource.getCompat(accept: String): InputStream {
+    lateinit var input: InputStream
+    get(accept) { response ->
+        checkStatus(response)
+        input = response.body!!.byteStream()
+    }
+    return input
+}
 
 @Throws(DavException::class, IOException::class)
 fun DavResource.getRangeCompat(
